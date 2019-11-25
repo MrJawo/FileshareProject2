@@ -14,6 +14,8 @@ def getFile(name, conn):
     while True:
         print('while starts')
         data = conn.recv(1024)
+        if data == b'':
+            break
         client_command = data.decode('utf-8')
         if client_command == 'L':
             server_response = os.listdir()
@@ -26,9 +28,10 @@ def getFile(name, conn):
             userResponse = conn.recv(1024)
             if userResponse[:2].decode('utf-8') == 'OK':
                 with open(data, 'rb') as f:
+
                     bytesToSend = f.read(1024)
                     conn.send(bytesToSend)
-                    while bytesToSend != '':
+                    while bytesToSend != b"":
                         bytesToSend = f.read(1024)
                         conn.send(bytesToSend)
 
@@ -52,4 +55,6 @@ def main():
 
 
 
+
 main()
+print('server is closed')
