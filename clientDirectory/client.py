@@ -15,7 +15,28 @@ def download(btn):
     win.clearLabel('Result')
     filename = win.getEntry('filename')
     client_socket.send(filename.encode())
+    f = open('new_' + filename, 'wb')
+    #data = client_socket.recv(1024)
+    for i in range(3):
+        data = client_socket.recv(2048)
+        f.write(data)
+    f.close()
+    win.setLabel('Result', 'Download succesful')
+
+
+
+
+def getDownload(filename):
+    client_socket.send(filename.encode())
+    f = open('new_' + filename, 'wb')
     data = client_socket.recv(1024)
+    while True:
+        data = client_socket.recv(1024)
+        if len(data) == 0:
+            break
+        f.write(data)
+    return 'Download complete'
+
 
 def search(btn):
     list = ''
@@ -28,8 +49,9 @@ def search(btn):
     win.setLabel("Result", list)
 
 
-def press():
-    pass
+def press(btn):
+    if btn == "Exit":
+        win.stop()
 
 win = gui("File Transfer")
 
@@ -52,7 +74,7 @@ win.setLabelAlign("Result", win.NW)
 #win.setLabelHeight("Result", 8)
 
 # Third line, buttons
-win.addButtons(["Download", "Search","  Exit "],
+win.addButtons(["Download", "Search", "Exit"],
                [download, search ,press], 2,0,4)
 win.setButtonFont(22)
 
@@ -60,6 +82,8 @@ win.setButtonFont(22)
 
 # Go, go, go!!!!!!
 win.go()
+
+
 
 
 

@@ -2,6 +2,7 @@ import socket
 import threading
 import os
 import time
+import datetime
 
 
 
@@ -24,17 +25,14 @@ def getFile(name, conn):
 
             continue
         if os.path.isfile(data):
-            filesize = ('File exists' + str(os.path.getsize(data)))
-            conn.send(filesize.encode('utf-8'))
-            userResponse = conn.recv(1024)
-            if userResponse[:2].decode('utf-8') == 'OK':
-                with open(data, 'rb') as f:
-
+            size = os.path.getsize(client_command)
+            print(size)
+            with open(data, 'rb') as f:
+                bytesToSend = f.read(1024)
+                conn.send(bytesToSend)
+                while bytesToSend != b"":
                     bytesToSend = f.read(1024)
                     conn.send(bytesToSend)
-                    while bytesToSend != b"":
-                        bytesToSend = f.read(1024)
-                        conn.send(bytesToSend)
 
 
 
@@ -50,6 +48,7 @@ def main():
         server_socket.listen(5)
         conn, addr = server_socket.accept()
         print('Connected with ' + addr[0] + ' : ' + str(addr[1]))
+        print(datetime.datetime.now())
         myThread = threading.Thread(target=getFile ,args=('getFile', conn))
         myThread.start()
         myThread.join()
