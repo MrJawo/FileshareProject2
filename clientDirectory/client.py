@@ -1,7 +1,48 @@
 import socket
 import sys
 import time
+from appJar import gui
 from clientDirectory.validator import Validator
+
+
+def download():
+    pass
+
+def press():
+    pass
+
+win = gui("File Transfer")
+
+win.setFont(18)
+win.setBg('grey')
+win.setSize('600x300')
+win.addLabel("fillbl1", "Filename", 0,0)
+win.addEntry("filename", 0,1)
+win.setEntry("filename", "")
+win.addLabel("fillbl2", "Path", 0,2)
+win.addEntry("path", 0,3)
+win.setEntry("path", "/Desktop/")
+win.setFocus("filename")
+
+# Second line, label to show the result
+win.addEmptyLabel("Result", 1,0,4,1)
+win.setLabelBg('Result','white')
+win.setLabelRelief("Result", win.GROOVE)
+win.setLabelAlign("Result", win.NW)
+#win.setLabelHeight("Result", 8)
+
+# Third line, buttons
+win.addButtons(["Download", "    Exit   "],
+               [download, press], 2,0,4)
+win.setButtonFont(22)
+
+#win.enableEnter(Enterpush)
+
+# Go, go, go!!!!!!
+win.go()
+
+
+
 
 HOST = socket.gethostname()
 PORT = 5000
@@ -69,3 +110,5 @@ while True:
 print('Bye. Welcome back!')
 client_socket.close()
 print('Client socket closed')
+
+

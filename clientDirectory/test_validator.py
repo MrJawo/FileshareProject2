@@ -6,7 +6,7 @@ class TestValidator(unittest.TestCase):
 
     def setUp(self):
         self.validator = Validator()
-        print('Hello')
+
 
     def test_reject_password_is_too_short(self):
 
