@@ -12,7 +12,7 @@ all_address = []
 
 def getFile(name, conn):
     while True:
-        print('while starts')
+        #print('while starts')
         data = conn.recv(1024)
         if data == b'':
             break
@@ -51,6 +51,7 @@ def main():
         print('Connected with ' + addr[0] + ' : ' + str(addr[1]))
         myThread = threading.Thread(target=getFile ,args=('getFile', conn))
         myThread.start()
+        myThread.join()
     server_socket.close()
 
 

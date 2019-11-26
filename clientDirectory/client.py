@@ -30,7 +30,7 @@ print(f""" Welcome {username} to this file sharing server
              """)
 
 while True:
-    print('while starts')
+    #print('while starts')
     command = input('> ')
     if command == 'Q':
         sys.exit()
