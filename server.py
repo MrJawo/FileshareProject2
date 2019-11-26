@@ -21,6 +21,7 @@ def getFile(name, conn):
             server_response = os.listdir()
             server_response = ','.join(server_response)
             conn.send(server_response.encode())
+
             continue
         if os.path.isfile(data):
             filesize = ('File exists' + str(os.path.getsize(data)))

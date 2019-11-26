@@ -4,9 +4,29 @@ import time
 from appJar import gui
 from clientDirectory.validator import Validator
 
+HOST = socket.gethostname()
+PORT = 5000
 
-def download():
-    pass
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client_socket.connect((HOST, PORT))
+
+
+def download(btn):
+    win.clearLabel('Result')
+    filename = win.getEntry('filename')
+    client_socket.send(filename.encode())
+    data = client_socket.recv(1024)
+
+def search(btn):
+    list = ''
+    win.clearLabel('Result')
+    client_socket.send('L'.encode())
+    data = client_socket.recv(1024)
+    for file in data.decode('utf-8').split(','):
+            if file.endswith('mp3') or file.endswith('png') or file.endswith('jpeg'):
+                list += file + '\n'
+    win.setLabel("Result", list)
+
 
 def press():
     pass
@@ -32,8 +52,8 @@ win.setLabelAlign("Result", win.NW)
 #win.setLabelHeight("Result", 8)
 
 # Third line, buttons
-win.addButtons(["Download", "    Exit   "],
-               [download, press], 2,0,4)
+win.addButtons(["Download", "Search","  Exit "],
+               [download, search ,press], 2,0,4)
 win.setButtonFont(22)
 
 #win.enableEnter(Enterpush)
@@ -43,32 +63,6 @@ win.go()
 
 
 
-
-HOST = socket.gethostname()
-PORT = 5000
-
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect((HOST, PORT))
-
-print('Create an account by entering a username and a password \npassword must be at least 8 characters long with '
-      'both uppercase and lowercase letters')
-username = input('Enter a username: ')
-while True:
-    password = input('Enter a password: ')
-
-    test = Validator.password_is_valid('password', password)
-
-    if test == True:
-        break
-    else:
-        print('invalid password. Try again')
-
-print(f""" Welcome {username} to this file sharing server
-             Choose an option from the menu.\n
-             To download a file enter: D
-             To list all the files available enter: L
-             To quit: Q
-             """)
 
 while True:
     #print('while starts')
