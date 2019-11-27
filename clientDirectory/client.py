@@ -3,6 +3,7 @@ import time
 import sys
 from appJar import gui
 import os
+from clientDirectory.validator import Validator
 
 
 HOST = socket.gethostname()
@@ -10,6 +11,8 @@ PORT = 5000
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((HOST, PORT))
+
+validator = Validator()
 
 
 def download(btn):
@@ -48,10 +51,6 @@ def myfiles():
             if entry.is_file:
                 list2 += entry.name + '\n'
 
-    #files = os.listdir()
-    #for file in files:
-        #if file.endswith('mp3') or file.endswith('png') or file.endswith('jpeg'):
-            #list2 += file + '\n'
     win.setLabel('Result', list2)
 
 
@@ -59,36 +58,115 @@ def press(btn):
     if btn == "Exit":
         win.clearLabel('Result')
         win.setLabel('Result', 'Bye. Welcome back')
-        time.sleep(2)
+        time.sleep(1)
         win.stop()
 
 
-win = gui("File Transfer")
+def press2(name):
+    if name == 'Cancel':
+        app.stop()
+    elif name == 'Reset':
+        app.clearEntry('Username')
+        app.clearEntry('Password')
+        app.setFocus('Username')
+    elif name == 'Submit':
+        username = app.getEntry('Username')
+        password = app.getEntry('Password')
+        if [username,password] in userlist:
+            app.infoBox('Welcome',f'Logged in as {username}')
+            time.sleep(1)
+            app.stop()
 
+        else:
+            app.errorBox('Error', 'Invalid password or username')
+            app.clearEntry('Password')
+            app.clearEntry('Username')
+
+userlist = []
+
+
+def press3(btn):
+    global userlist
+    if btn == 'Cancel':
+        app1.stop()
+    elif btn == 'Reset':
+        app1.clearEntry('Username')
+        app1.clearEntry('Password')
+        app1.setFocus('Username')
+    elif btn == 'Submit':
+        username = app1.getEntry('Username')
+        password = app1.getEntry('Password')
+        if validator.password_is_valid(password) == True:
+            userlist.append([username,password])
+            app1.infoBox('Account created',f'Welcome {username} Your account is created!\nPlease log in')
+            app1.stop()
+
+        if validator.password_is_valid(password) == False:
+            app1.errorBox('Error', 'Your password is to weak\nPassword needs to be at least 8 characters.\nUse both lower and uppercase letters')
+            app1.clearEntry('Password')
+
+
+
+        #if username == 'Sacke' and password == 'Perkele10':
+         #   app.infoBox('Logged in as Sepideh', 'Valid password')
+          #  time.sleep(1)
+           # app.stop()
+
+        #else:
+         #   app.errorBox('Error', 'Invalid password or username')
+
+
+
+app1 = gui('Create user account')
+
+app1.addLabel('Create user account')
+app1.setBg('blue')
+app1.setFg('white')
+app1.setFont(16)
+app1.addLabelEntry('Username')
+app1.addSecretLabelEntry('Password')
+app1.addButtons(['Submit', 'Reset', 'Cancel'], press3)
+app1.go()
+
+print(userlist)
+
+
+
+app = gui('Login')
+
+app.addLabel('Login Window')
+app.setBg('green')
+app.setFg('white')
+app.setFont(16)
+app.addLabelEntry('Username')
+app.addSecretLabelEntry('Password')
+app.addButtons(['Submit', 'Reset', 'Cancel'], press2)
+
+
+app.go()
+
+
+
+
+win = gui("File Transfer")
 win.setFont(18)
 win.setBg('white')
 win.setSize('600x300')
 win.addLabel("fillbl1", "Filename", 0, 0)
 win.addEntry("filename", 0, 1)
 win.setEntry("filename", "")
-#win.addLabel("fillbl2", "Path", 0, 2)
-#win.addEntry("path", 0,3)
-#win.setEntry("path", "/Desktop/")
 win.setFocus("filename")
-
 win.addEmptyLabel("Result", 1,0,4,1)
 win.setLabelBg('Result', 'white')
 win.setLabelRelief("Result", win.GROOVE)
 win.setLabelAlign("Result", win.NW)
-
-
 win.addButtons(['Download','Files available', "Exit", "Downloaded files"],
                [download, available_files, press, myfiles], 2, 0, 4,4)
-
 win.setButtonImage('Download', 'down.gif')
 win.setButtonFont(22)
 
 win.go()
+
 
 print('Bye. Welcome back!')
 client_socket.close()
