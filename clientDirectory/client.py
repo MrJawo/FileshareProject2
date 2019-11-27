@@ -1,5 +1,6 @@
 import socket
 import time
+import sys
 from appJar import gui
 import os
 
@@ -15,12 +16,16 @@ def download(btn):
     win.clearLabel('Result')
     filename = win.getEntry('filename')
     client_socket.send(filename.encode())
-    f = open('copy_' + filename, 'wb')
+    basepath = "/Users/sacke/Desktop/File_share/clientDirectory/Downloads/"
+    os.chdir(basepath)
+    f = open(filename, 'wb')
     for i in range(4):
         data = client_socket.recv(1024)
         f.write(data)
     f.close()
     win.setLabel('Result', 'Download successful')
+    win.clearEntry('filename')
+
 
 
 def available_files(btn):
@@ -37,11 +42,16 @@ def available_files(btn):
 def myfiles():
     list2 = ''
     win.clearLabel('Result')
-    files = os.listdir()
-    print(files)
-    for file in files:
-        if file.endswith('mp3') or file.endswith('png') or file.endswith('jpeg'):
-            list2 += file + '\n'
+    basepath = "/Users/sacke/Desktop/File_share/clientDirectory/Downloads/"
+    with os.scandir(basepath) as entries:
+        for entry in entries:
+            if entry.is_file:
+                list2 += entry.name + '\n'
+
+    #files = os.listdir()
+    #for file in files:
+        #if file.endswith('mp3') or file.endswith('png') or file.endswith('jpeg'):
+            #list2 += file + '\n'
     win.setLabel('Result', list2)
 
 
@@ -56,14 +66,14 @@ def press(btn):
 win = gui("File Transfer")
 
 win.setFont(18)
-win.setBg('grey')
+win.setBg('white')
 win.setSize('600x300')
 win.addLabel("fillbl1", "Filename", 0, 0)
 win.addEntry("filename", 0, 1)
 win.setEntry("filename", "")
-win.addLabel("fillbl2", "Path", 0, 2)
-win.addEntry("path", 0,3)
-win.setEntry("path", "/Desktop/")
+#win.addLabel("fillbl2", "Path", 0, 2)
+#win.addEntry("path", 0,3)
+#win.setEntry("path", "/Desktop/")
 win.setFocus("filename")
 
 win.addEmptyLabel("Result", 1,0,4,1)
@@ -72,14 +82,14 @@ win.setLabelRelief("Result", win.GROOVE)
 win.setLabelAlign("Result", win.NW)
 
 
-win.addButtons(["Download", "Files available", "Exit", "Downloaded files"],
-               [download, available_files, press, myfiles], 2, 0, 4)
+win.addButtons(['Download','Files available', "Exit", "Downloaded files"],
+               [download, available_files, press, myfiles], 2, 0, 4,4)
+
+win.setButtonImage('Download', 'down.gif')
 win.setButtonFont(22)
 
 win.go()
 
 print('Bye. Welcome back!')
 client_socket.close()
-
-
-
+sys.exit()
