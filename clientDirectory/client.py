@@ -17,8 +17,8 @@ def download(btn):
     client_socket.send(filename.encode())
     f = open('new_' + filename, 'wb')
     #data = client_socket.recv(1024)
-    for i in range(3):
-        data = client_socket.recv(2048)
+    for i in range(4):
+        data = client_socket.recv(1024)
         f.write(data)
     f.close()
     win.setLabel('Result', 'Download succesful')
@@ -66,21 +66,16 @@ win.addEntry("path", 0,3)
 win.setEntry("path", "/Desktop/")
 win.setFocus("filename")
 
-# Second line, label to show the result
 win.addEmptyLabel("Result", 1,0,4,1)
 win.setLabelBg('Result','white')
 win.setLabelRelief("Result", win.GROOVE)
 win.setLabelAlign("Result", win.NW)
-#win.setLabelHeight("Result", 8)
 
-# Third line, buttons
+
 win.addButtons(["Download", "Search", "Exit"],
                [download, search ,press], 2,0,4)
 win.setButtonFont(22)
 
-#win.enableEnter(Enterpush)
-
-# Go, go, go!!!!!!
 win.go()
 
 
@@ -88,43 +83,7 @@ win.go()
 
 
 
-while True:
-    #print('while starts')
-    command = input('> ')
-    if command == 'Q':
-        sys.exit()
-    if command == 'L':
-        client_socket.send(command.encode())
-        data = client_socket.recv(1024)
-        for file in data.decode('utf-8').split(','):
-            if file.endswith('mp3') or file.endswith('png') or file.endswith('jpeg'):
-                print(file)
-        command = 'D'
 
-    if command == 'D':
-        filename = input('\nenter the name of the file you want to download\n> ')
-        client_socket.send(filename.encode())
-        data = client_socket.recv(1024)
-    if data[:11].decode('utf-8') == 'File exists':
-        filesize = data[11:].decode()
-        message = input(f'File exists, {str(filesize)} Bytes, download? (Y/N)? -> ')
-        if message == 'Y':
-            client_socket.send('OK'.encode('utf-8'))
-            f = open('new_' + filename, 'wb')
-            data = client_socket.recv(1024)
-            totalRecv = len(data)
-            f.write(data)
-            while totalRecv < int(filesize):
-                data = client_socket.recv(1024)
-                totalRecv += len(data)
-                f.write(data)
-                print("{0:.2f}".format((totalRecv / float(filesize)) * 100) + \
-                      "% Done")
-                time.sleep(0.01)
-
-            print('Download complete!')
-    else:
-        print('File does not exist')
 print('Bye. Welcome back!')
 client_socket.close()
 print('Client socket closed')
