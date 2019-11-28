@@ -21,11 +21,20 @@ def download(btn):
     client_socket.send(filename.encode())
     basepath = "/Users/sacke/Desktop/File_share/clientDirectory/Downloads/"
     os.chdir(basepath)
-    f = open(filename, 'wb')
-    for i in range(4):
-        data = client_socket.recv(1024)
-        f.write(data)
+    with open(filename,'wb') as f:
+        size = client_socket.recv(4)
+        total_received = b''
+        data = b''
+        while True:
+            data = client_socket.recv(1024)
+            total_received += data
+            f.write(data)
+            if len(total_received) == int(size.decode()):
+                break
     f.close()
+
+
+
     win.setLabel('Result', 'Download successful')
     win.clearEntry('filename')
 

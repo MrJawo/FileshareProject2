@@ -8,8 +8,8 @@ import datetime
 
 HOST = socket.gethostname()
 PORT = 5000
-all_connections = []
-all_address = []
+
+userlist = []
 
 def getFile(name, conn):
     while True:
@@ -27,12 +27,22 @@ def getFile(name, conn):
         if os.path.isfile(data):
             size = os.path.getsize(client_command)
             print(size)
-            with open(data, 'rb') as f:
-                bytesToSend = f.read(1024)
-                conn.send(bytesToSend)
-                while bytesToSend != b"":
-                    bytesToSend = f.read(1024)
-                    conn.send(bytesToSend)
+            conn.send(str(size).encode())
+            f = open(data.decode('utf-8'),'rb')
+            l = f.read(1024)
+            while (l):
+                conn.send(l)
+                #print('Sent ',repr(l))
+                l = f.read(1024)
+            f.close()
+            print('Done sending')
+            #print(size)
+            #with open(data, 'rb') as f:
+            #    bytesToSend = f.read(1024)
+            #    conn.send(bytesToSend)
+            #    while bytesToSend != b"":
+            #        bytesToSend = f.read(1024)
+            #        conn.send(bytesToSend)
 
 
 

@@ -1,6 +1,6 @@
 import unittest
 
-from  clientDirectory.validator import Validator
+from clientDirectory.validator import Validator
 
 class TestValidator(unittest.TestCase):
 
@@ -10,7 +10,7 @@ class TestValidator(unittest.TestCase):
 
     def test_reject_password_is_too_short(self):
 
-        password = 'toosho'
+        password = 'Short'
         validator = Validator()
 
         result = validator.password_is_valid(password)
@@ -28,7 +28,7 @@ class TestValidator(unittest.TestCase):
 
     def test_reject_password_if_password_have_whitespace(self):
 
-        password = 'Password whitspace'
+        password = 'Password whit space'
         validator = Validator()
 
         result = validator.password_is_valid(password)
