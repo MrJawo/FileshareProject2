@@ -5,7 +5,7 @@ from appJar import gui
 import os
 from clientDirectory.validator import Validator
 
-
+HEADERSIZE = 2
 HOST = socket.gethostname()
 PORT = 5000
 
@@ -65,6 +65,7 @@ def myfiles():
 
 def press(btn):
     if btn == "Exit":
+        client_socket.send(b'exit')
         win.clearLabel('Result')
         win.setLabel('Result', 'Bye. Welcome back')
         time.sleep(1)
@@ -81,12 +82,17 @@ def press2(name):
     elif name == 'Submit':
         username = app.getEntry('Username')
         password = app.getEntry('Password')
-        if [username,password] in userlist:
+        client_socket.send(b'logIn')
+        client_socket.send(f'{len(username):<{HEADERSIZE}}'.encode())
+        client_socket.send(username.encode())
+        client_socket.send(f'{len(password):<{HEADERSIZE}}'.encode())
+        client_socket.send(password.encode())
+        data = client_socket.recv(12)
+        if data == b'valid user  ':
             app.infoBox('Welcome',f'Logged in as {username}')
             time.sleep(1)
             app.stop()
-
-        else:
+        if data == b'invalid user':
             app.errorBox('Error', 'Invalid password or username')
             app.clearEntry('Password')
             app.clearEntry('Username')
@@ -95,7 +101,7 @@ userlist = []
 
 
 def press3(btn):
-    global userlist
+    #global userlist
     if btn == 'Cancel':
         app1.stop()
     elif btn == 'Reset':
@@ -107,7 +113,13 @@ def press3(btn):
         password = app1.getEntry('Password')
         if validator.password_is_valid(password) == True:
             userlist.append([username,password])
+            client_socket.send(b'createAccount')
+            client_socket.send(f'{len(username):<{HEADERSIZE}}'.encode())
+            client_socket.send(username.encode())
+            client_socket.send(f'{len(password):<{HEADERSIZE}}'.encode())
+            client_socket.send(password.encode())
             app1.infoBox('Account created',f'Welcome {username} Your account is created!\nPlease log in')
+
             app1.stop()
 
         if validator.password_is_valid(password) == False:
@@ -115,11 +127,6 @@ def press3(btn):
             app1.clearEntry('Password')
 
 
-
-        #if username == 'Sacke' and password == 'Perkele10':
-         #   app.infoBox('Logged in as Sepideh', 'Valid password')
-          #  time.sleep(1)
-           # app.stop()
 
         #else:
          #   app.errorBox('Error', 'Invalid password or username')
