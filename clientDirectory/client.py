@@ -5,28 +5,28 @@ from appJar import gui
 import os
 from clientDirectory.validator import Validator
 
-HEADERSIZE = 2
+HEADERSIZE = 2                                                          # Header constant for fixed buffer size
 HOST = socket.gethostname()
 PORT = 5000
 
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client_socket.connect((HOST, PORT))
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)       # Create client socket
+client_socket.connect((HOST, PORT))                                     # Connecting to server
 
-validator = Validator()
+validator = Validator()                                    # test function for passwords
 
 
-def download(btn):
-    win.clearLabel('Result')
-    filename = win.getEntry('filename')
+def download(btn):                                  # function for downloading files from server
+    app3.clearLabel('Result')
+    filename = app3.getEntry('filename')
     client_socket.send(filename.encode())
-    basepath = "/Users/sacke/Desktop/File_share/clientDirectory/Downloads/"
+    basepath = "/Users/sacke/Desktop/File_share/clientDirectory/Downloads/"     # create a new path for the downloaded files
     os.chdir(basepath)
     with open(filename,'wb') as f:
-        size = client_socket.recv(4)
+        size = client_socket.recv(4)                                        # receiving file size for the incoming files
         total_received = b''
         data = b''
         while True:
-            data = client_socket.recv(1024)
+            data = client_socket.recv(1024)                                 # receiving and writing file
             total_received += data
             f.write(data)
             if len(total_received) == int(size.decode()):
@@ -34,74 +34,71 @@ def download(btn):
     f.close()
 
 
-
-    win.setLabel('Result', 'Download successful')
-    win.clearEntry('filename')
-
+    app3.setLabel('Result', 'Download successful')
+    app3.clearEntry('filename')
 
 
-def available_files(btn):
+def available_files(btn):                       # listing files available in server main folder
     list = ''
-    win.clearLabel('Result')
+    app3.clearLabel('Result')
     client_socket.send('L'.encode())
     data = client_socket.recv(1024)
     for file in data.decode('utf-8').split(','):
         if file.endswith('mp3') or file.endswith('png') or file.endswith('jpeg'):
             list += file + '\n'
-    win.setLabel("Result", list)
+    app3.setLabel("Result", list)
 
 
-def myfiles():
+def myfiles():                      # listing files in clients download folder
     list2 = ''
-    win.clearLabel('Result')
+    app3.clearLabel('Result')
     basepath = "/Users/sacke/Desktop/File_share/clientDirectory/Downloads/"
     with os.scandir(basepath) as entries:
         for entry in entries:
             if entry.is_file:
                 list2 += entry.name + '\n'
 
-    win.setLabel('Result', list2)
+    app3.setLabel('Result', list2)
 
 
-def press(btn):
+def exit(btn):                          # exit
     if btn == "Exit":
         client_socket.send(b'exit')
-        win.clearLabel('Result')
-        win.setLabel('Result', 'Bye. Welcome back')
+        app3.clearLabel('Result')
+        app3.setLabel('Result', 'Bye. Welcome back')
         time.sleep(1)
-        win.stop()
+        app3.stop()
 
 
 def press2(name):
     if name == 'Cancel':
-        app.stop()
+        app2.stop()
     elif name == 'Reset':
-        app.clearEntry('Username')
-        app.clearEntry('Password')
-        app.setFocus('Username')
-    elif name == 'Submit':
-        username = app.getEntry('Username')
-        password = app.getEntry('Password')
+        app2.clearEntry('Username')
+        app2.clearEntry('Password')
+        app2.setFocus('Username')
+    elif name == 'Submit':                          # looking for existing username and password in server for access to downloading application
+        username = app2.getEntry('Username')
+        password = app2.getEntry('Password')
         client_socket.send(b'logIn')
-        client_socket.send(f'{len(username):<{HEADERSIZE}}'.encode())
-        client_socket.send(username.encode())
-        client_socket.send(f'{len(password):<{HEADERSIZE}}'.encode())
-        client_socket.send(password.encode())
-        data = client_socket.recv(12)
+        client_socket.send(f'{len(username):<{HEADERSIZE}}'.encode())           # sending username size to server
+        client_socket.send(username.encode())                                   # sending username
+        client_socket.send(f'{len(password):<{HEADERSIZE}}'.encode())           # sending password size to server
+        client_socket.send(password.encode())                                   # sending password
+
+        data = client_socket.recv(12)                                           # receive validation from server
         if data == b'valid user  ':
-            app.infoBox('Welcome',f'Logged in as {username}')
+            app2.infoBox('Welcome',f'Logged in as {username}')
             time.sleep(1)
-            app.stop()
+            app2.stop()
         if data == b'invalid user':
-            app.errorBox('Error', 'Invalid password or username')
-            app.clearEntry('Password')
-            app.clearEntry('Username')
-
-userlist = []
+            app2.errorBox('Error', 'Invalid password or username')
+            app2.clearEntry('Password')
+            app2.clearEntry('Username')
 
 
-def press3(btn):
-    #global userlist
+def press3(btn):                            # Create account and send it to server
+
     if btn == 'Cancel':
         app1.stop()
     elif btn == 'Reset':
@@ -111,26 +108,19 @@ def press3(btn):
     elif btn == 'Submit':
         username = app1.getEntry('Username')
         password = app1.getEntry('Password')
-        if validator.password_is_valid(password) == True:
-            userlist.append([username,password])
+        if validator.password_is_valid(password) == True:               # Testing password for weakness.
             client_socket.send(b'createAccount')
-            client_socket.send(f'{len(username):<{HEADERSIZE}}'.encode())
-            client_socket.send(username.encode())
-            client_socket.send(f'{len(password):<{HEADERSIZE}}'.encode())
-            client_socket.send(password.encode())
+            client_socket.send(f'{len(username):<{HEADERSIZE}}'.encode())       # sending username size to server
+            client_socket.send(username.encode())                               # sending username
+            client_socket.send(f'{len(password):<{HEADERSIZE}}'.encode())       # sending password size to server
+            client_socket.send(password.encode())                               # sending password
             app1.infoBox('Account created',f'Welcome {username} Your account is created!\nPlease log in')
 
             app1.stop()
 
-        if validator.password_is_valid(password) == False:
+        if validator.password_is_valid(password) == False:      # If password is too weak try again
             app1.errorBox('Error', 'Your password is to weak\nPassword needs to be at least 8 characters.\nUse both lower and uppercase letters')
             app1.clearEntry('Password')
-
-
-
-        #else:
-         #   app.errorBox('Error', 'Invalid password or username')
-
 
 
 app1 = gui('Create user account')
@@ -144,44 +134,37 @@ app1.addSecretLabelEntry('Password')
 app1.addButtons(['Submit', 'Reset', 'Cancel'], press3)
 app1.go()
 
-print(userlist)
+app2 = gui('Login')
 
+app2.addLabel('Login Window')
+app2.setBg('green')
+app2.setFg('white')
+app2.setFont(16)
+app2.addLabelEntry('Username')
+app2.addSecretLabelEntry('Password')
+app2.addButtons(['Submit', 'Reset', 'Cancel'], press2)
 
+app2.go()
 
-app = gui('Login')
+app3 = gui("File Transfer")
 
-app.addLabel('Login Window')
-app.setBg('green')
-app.setFg('white')
-app.setFont(16)
-app.addLabelEntry('Username')
-app.addSecretLabelEntry('Password')
-app.addButtons(['Submit', 'Reset', 'Cancel'], press2)
+app3.setFont(18)
+app3.setBg('white')
+app3.setSize('600x300')
+app3.addLabel("fillbl1", "Filename", 0, 0)
+app3.addEntry("filename", 0, 1)
+app3.setEntry("filename", "")
+app3.setFocus("filename")
+app3.addEmptyLabel("Result", 1, 0, 4, 1)
+app3.setLabelBg('Result', 'white')
+app3.setLabelRelief("Result", app3.GROOVE)
+app3.setLabelAlign("Result", app3.NW)
+app3.addButtons(['Download', 'Files available', "Exit", "Downloaded files"],
+                [download, available_files, exit, myfiles], 2, 0, 4, 4)
+app3.setButtonImage('Download', 'down.gif')
+app3.setButtonFont(22)
 
-
-app.go()
-
-
-
-
-win = gui("File Transfer")
-win.setFont(18)
-win.setBg('white')
-win.setSize('600x300')
-win.addLabel("fillbl1", "Filename", 0, 0)
-win.addEntry("filename", 0, 1)
-win.setEntry("filename", "")
-win.setFocus("filename")
-win.addEmptyLabel("Result", 1,0,4,1)
-win.setLabelBg('Result', 'white')
-win.setLabelRelief("Result", win.GROOVE)
-win.setLabelAlign("Result", win.NW)
-win.addButtons(['Download','Files available', "Exit", "Downloaded files"],
-               [download, available_files, press, myfiles], 2, 0, 4,4)
-win.setButtonImage('Download', 'down.gif')
-win.setButtonFont(22)
-
-win.go()
+app3.go()
 
 
 print('Bye. Welcome back!')
