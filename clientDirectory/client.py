@@ -114,33 +114,35 @@ def press3(btn):                            # Create account and send it to serv
             client_socket.send(username.encode())                               # sending username
             client_socket.send(f'{len(password):<{HEADERSIZE}}'.encode())       # sending password size to server
             client_socket.send(password.encode())                               # sending password
-            app1.infoBox('Account created',f'Welcome {username} Your account is created!\nPlease log in')
+            app1.infoBox(title='Congratulations',message=f'Account created\nWelcome {username} Your account is created!\nPlease log in')
 
             app1.stop()
 
         if validator.password_is_valid(password) == False:      # If password is too weak try again
-            app1.errorBox('Error', 'Your password is to weak\nPassword needs to be at least 8 characters.\nUse both lower and uppercase letters')
-            app1.clearEntry('Password')
+            app1.errorBox('Error', 'Your password is to weak\nPassword needs to be at least 8 characters.\nUse both lower and uppercase letters',parent='Create user account')
+            #app1.clearEntry('Password')
 
 
-app1 = gui('Create user account')
+app1 = gui('Create user account','400x150')
 
 app1.addLabel('Create user account')
 app1.setBg('blue')
 app1.setFg('white')
 app1.setFont(16)
 app1.addLabelEntry('Username')
+app1.setFocus('Username')
 app1.addSecretLabelEntry('Password')
 app1.addButtons(['Submit', 'Reset', 'Cancel'], press3)
 app1.go()
 
-app2 = gui('Login')
-
-app2.addLabel('Login Window')
-app2.setBg('green')
-app2.setFg('white')
-app2.setFont(16)
+app2 = gui('Login Window', '400x200')
+app2.setBg('orange')
+app2.setFont(18)
+app2.addLabel('Login Window','Welcome')
+app2.setLabelBg('Login Window', 'blue')
+app2.setLabelFg('Login Window', 'orange')
 app2.addLabelEntry('Username')
+app2.setFocus('Username')
 app2.addSecretLabelEntry('Password')
 app2.addButtons(['Submit', 'Reset', 'Cancel'], press2)
 
