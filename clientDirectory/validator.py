@@ -1,8 +1,9 @@
 class Validator:
 
+#test for password creation
     def password_is_valid(self, password):
 
-        if len(password) <= 8:
+        if len(password) < 8:
             return False
 
         if password.islower() or password.isupper():
@@ -12,3 +13,5 @@ class Validator:
             return False
 
         return True
+
+
